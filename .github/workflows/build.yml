@@ -20,26 +20,20 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Installer Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
       - name: Extraire Nexora
         run: |
           mkdir -p nexora_project
           unzip -q Nexora_Android_V4_Phone_Build.zip -d nexora_project
 
-      - name: Trouver le projet Android
-        run: |
-          GRADLEW=$(find nexora_project -name gradlew -type f | head -n 1)
-          if [ -z "$GRADLEW" ]; then
-            echo "gradlew introuvable"
-            exit 1
-          fi
-          chmod +x "$GRADLEW"
-          echo "GRADLEW=$GRADLEW" >> "$GITHUB_ENV"
-
       - name: Compiler Nexora
         run: |
-          PROJECT_DIR=$(dirname "$GRADLEW")
-          cd "$PROJECT_DIR"
-          ./gradlew assembleDebug --no-daemon
+          cd nexora_project
+          gradle :app:assembleDebug --no-daemon
 
       - name: Récupérer l'APK
         uses: actions/upload-artifact@v4
