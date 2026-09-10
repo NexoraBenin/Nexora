@@ -28,7 +28,7 @@ jobs:
       - name: Extraire Nexora
         run: |
           mkdir -p nexora_project
-          unzip -q Nexora_Android_V4_Phone_Build.zip -d nexora_project
+        unzip -q Nexora_Android_V5_CompileSdk36.zip -d nexora_project
 
       - name: Compiler Nexora
         run: |
