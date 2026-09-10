@@ -1,0 +1,48 @@
+name: Construire Nexora APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Télécharger le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extraire Nexora
+        run: |
+          mkdir -p nexora_project
+          unzip -q Nexora_Android_V4_Phone_Build.zip -d nexora_project
+
+      - name: Trouver le projet Android
+        run: |
+          GRADLEW=$(find nexora_project -name gradlew -type f | head -n 1)
+          if [ -z "$GRADLEW" ]; then
+            echo "gradlew introuvable"
+            exit 1
+          fi
+          chmod +x "$GRADLEW"
+          echo "GRADLEW=$GRADLEW" >> "$GITHUB_ENV"
+
+      - name: Compiler Nexora
+        run: |
+          PROJECT_DIR=$(dirname "$GRADLEW")
+          cd "$PROJECT_DIR"
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Récupérer l'APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nexora-APK
+          path: nexora_project/**/build/outputs/apk/debug/*.apk
